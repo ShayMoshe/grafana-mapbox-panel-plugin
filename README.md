@@ -11,6 +11,8 @@
 [mapbox](https://www.mapbox.com/) map for Grafana
 
 ## Configuration
+![alt text](https://raw.githubusercontent.com/ShayMoshe/grafana-mapbox-panel-plugin/master/src/img/display.png)
+
 - Access Token: your mapbox access token [more info](https://docs.mapbox.com/help/how-mapbox-works/access-tokens/)
 - Style Url: URL style from the Mapbox API (mapbox://styles/:owner/:style) [more info](https://docs.mapbox.com/mapbox-gl-js/api/map/).
 for example:
@@ -33,10 +35,14 @@ The required rows are:
 
 
 ### Cluster
+![alt text](https://raw.githubusercontent.com/ShayMoshe/grafana-mapbox-panel-plugin/master/src/img/cluster.png)
 
 ### HeatMap
+![alt text](https://raw.githubusercontent.com/ShayMoshe/grafana-mapbox-panel-plugin/master/src/img/heatmap.png)
 
 ### Track
+![alt text](https://raw.githubusercontent.com/ShayMoshe/grafana-mapbox-panel-plugin/master/src/img/track.png)
+
 
 ## Installation
 1. Install dependencies
