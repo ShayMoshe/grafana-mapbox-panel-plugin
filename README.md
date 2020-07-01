@@ -1,0 +1,1 @@
+# grafana-mapbox-panel-plugin
