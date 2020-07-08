@@ -9,4 +9,6 @@ export interface SimpleOptions {
   type: MapType;
   showSeriesCount: boolean;
   seriesCountSize: SeriesSize;
+  lineColor: string;
+  lineWidth: number;
 }

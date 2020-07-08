@@ -41,7 +41,8 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
         let longitude: any = data.series[0].fields.filter(field => field.name === 'longitude' || field.name === 'lng');
         let name: any = data.series[0].fields.filter(field => field.name === 'name');
         let value: any = data.series[0].fields.filter(field => field.name === 'value');
-        let coordinates = [];
+        let coordinates: any[] = [];
+        let avgCoordinates = [0, 0];
         for (let index = 0; index < data.series[0].length; index++) {
           features.push({
             type: 'Feature',
@@ -58,7 +59,14 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
             },
           });
           coordinates.push([longitude[0].values.buffer[index], latitude[0].values.buffer[index]]);
+          avgCoordinates[0] += longitude[0].values.buffer[index];
+          avgCoordinates[1] += latitude[0].values.buffer[index];
         }
+        if (data.series[0].length) {
+          avgCoordinates[0] = avgCoordinates[0] / data.series[0].length;
+          avgCoordinates[1] = avgCoordinates[1] / data.series[0].length;
+        }
+
         if (type === 'cluster') {
           map.addSource('earthquakes', {
             type: 'geojson',
@@ -161,6 +169,7 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
           map.on('mouseleave', 'clusters', () => {
             map.getCanvas().style.cursor = '';
           });
+          map.jumpTo({ center: avgCoordinates, zoom: options.zoom });
         } else if (type === 'heatmap') {
           map.addSource('earthquakes', {
             type: 'geojson',
@@ -255,6 +264,7 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
             },
             'waterway-label'
           );
+          map.jumpTo({ center: avgCoordinates, zoom: options.zoom });
         } else if (type === 'track') {
           // map.on('load', () => {
           // We use D3 to fetch the JSON here so that we can parse and use it separately
@@ -280,15 +290,48 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
             type: 'line',
             source: 'trace',
             paint: {
-              'line-color': 'yellow',
+              'line-color': options.lineColor,
               'line-opacity': 0.75,
-              'line-width': 4,
+              'line-width': options.lineWidth,
             },
           });
 
           // setup the viewport
-          map.jumpTo({ center: coordinates[coordinates.length], zoom: 2 });
-          map.setPitch(30);
+          if (coordinates.length) {
+            map.setPitch(20);
+            map.jumpTo({ center: coordinates[0], zoom: options.zoom });
+            // const marker = new mapboxgl.Marker().setLngLat(coordinates[0]).addTo(map);
+            map.addSource('points', {
+              type: 'geojson',
+              data: {
+                type: 'FeatureCollection',
+                features: [
+                  {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                      type: 'Point',
+                      coordinates: coordinates[0],
+                    },
+                  },
+                ],
+              },
+            });
+
+            // Add a symbol layer.
+            map.addLayer({
+              id: 'symbols',
+              source: 'points',
+              type: 'circle',
+              paint: {
+                'circle-radius': 5,
+                'circle-color': options.lineColor,
+                'circle-stroke-color': 'white',
+                'circle-stroke-width': 1,
+                'circle-opacity': 0.6,
+              },
+            });
+          }
         }
       });
     };

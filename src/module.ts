@@ -39,5 +39,17 @@ export const plugin = new PanelPlugin<SimpleOptions>(MapboxPanel).setPanelOption
           },
         ],
       },
+    })
+    .addTextInput({
+      path: 'lineColor',
+      name: 'Line Color',
+      defaultValue: 'yellow',
+      showIf: config => config.type === 'track',
+    })
+    .addNumberInput({
+      path: 'lineWidth',
+      name: 'Line Width',
+      defaultValue: 4,
+      showIf: config => config.type === 'track',
     });
 });
