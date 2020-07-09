@@ -1,6 +1,6 @@
 {
   "name": "mapbox-grafana-plugin",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
@@ -12,7 +12,7 @@
   "author": "Shay Moshe",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/grafana/simple-react-panel/issues",
+    "url": "https://github.com/ShayMoshe/grafana-mapbox-panel-plugin/issues",
     "email": ""
   },
   "devDependencies": {
