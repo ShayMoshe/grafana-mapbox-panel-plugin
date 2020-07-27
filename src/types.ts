@@ -11,4 +11,7 @@ export interface SimpleOptions {
   seriesCountSize: SeriesSize;
   lineColor: string;
   lineWidth: number;
+  dotColor: string;
+  dotSize: number;
+  autoCenter: boolean;
 }

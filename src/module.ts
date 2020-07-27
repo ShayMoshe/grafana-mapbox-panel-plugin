@@ -51,5 +51,23 @@ export const plugin = new PanelPlugin<SimpleOptions>(MapboxPanel).setPanelOption
       name: 'Line Width',
       defaultValue: 4,
       showIf: config => config.type === 'track',
+    })
+    .addTextInput({
+      path: 'dotColor',
+      name: 'Dot Color',
+      defaultValue: 'red',
+      showIf: config => config.type === 'track',
+    })
+    .addNumberInput({
+      path: 'dotSize',
+      name: 'Dot Size',
+      defaultValue: 100,
+      showIf: config => config.type === 'track',
+    })
+    .addBooleanSwitch({
+      path: 'autoCenter',
+      name: 'Auto Center',
+      defaultValue: true,
+      showIf: config => config.type === 'track',
     });
 });

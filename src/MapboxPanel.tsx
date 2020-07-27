@@ -266,6 +266,59 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
           );
           map.jumpTo({ center: avgCoordinates, zoom: options.zoom });
         } else if (type === 'track') {
+          const size = options.dotSize;
+
+          const pulsingDot: any = {
+            width: size,
+            height: size,
+            data: new Uint8Array(size * size * 4),
+
+            // get rendering context for the map canvas when layer is added to the map
+            onAdd: function() {
+              var canvas = document.createElement('canvas');
+              canvas.width = this.width;
+              canvas.height = this.height;
+              this.context = canvas.getContext('2d');
+            },
+
+            // called once before every frame where the icon will be used
+            render: function() {
+              var duration = 1000;
+              var t = (performance.now() % duration) / duration;
+
+              var radius = (size / 2) * 0.3;
+              var outerRadius = (size / 2) * 0.5 * t + radius;
+              var context = this.context;
+
+              // draw outer circle
+              context.clearRect(0, 0, this.width, this.height);
+              context.beginPath();
+              context.arc(this.width / 2, this.height / 2, outerRadius, 0, Math.PI * 2);
+              context.fillStyle = 'rgba(255, 200, 200,' + (1 - t) + ')';
+              context.fill();
+
+              // draw inner circle
+              context.beginPath();
+              context.arc(this.width / 2, this.height / 2, radius, 0, Math.PI * 2);
+              context.fillStyle = options.dotColor;
+              context.strokeStyle = 'white';
+              context.lineWidth = 2 + 4 * (1 - t);
+              context.fill();
+              context.stroke();
+
+              // update this image's data with data from the canvas
+              this.data = context.getImageData(0, 0, this.width, this.height).data;
+
+              // continuously repaint the map, resulting in the smooth animation of the dot
+              map.triggerRepaint();
+
+              // return `true` to let the map know that the image was updated
+              return true;
+            },
+          };
+
+          map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
+
           // map.on('load', () => {
           // We use D3 to fetch the JSON here so that we can parse and use it separately
           // from GL JS's use in the added source. You can use any request method (library
@@ -298,8 +351,10 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
 
           // setup the viewport
           if (coordinates.length) {
-            map.setPitch(20);
-            map.jumpTo({ center: coordinates[0], zoom: options.zoom });
+            // map.setPitch(20);
+            if (options.autoCenter) {
+              map.jumpTo({ center: coordinates[0], zoom: options.zoom });
+            }
             // const marker = new mapboxgl.Marker().setLngLat(coordinates[0]).addTo(map);
             map.addSource('points', {
               type: 'geojson',
@@ -320,17 +375,25 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
 
             // Add a symbol layer.
             map.addLayer({
-              id: 'symbols',
+              id: 'points',
+              type: 'symbol',
               source: 'points',
-              type: 'circle',
-              paint: {
-                'circle-radius': 5,
-                'circle-color': options.lineColor,
-                'circle-stroke-color': 'white',
-                'circle-stroke-width': 1,
-                'circle-opacity': 0.6,
+              layout: {
+                'icon-image': 'pulsing-dot',
               },
             });
+            // map.addLayer({
+            //   id: 'symbols',
+            //   source: 'points',
+            //   type: 'circle',
+            //   paint: {
+            //     'circle-radius': 5,
+            //     'circle-color': options.lineColor,
+            //     'circle-stroke-color': 'white',
+            //     'circle-stroke-width': 1,
+            //     'circle-opacity': 0.6,
+            //   },
+            // });
           }
         }
       });
