@@ -17,3 +17,7 @@ Initial Release
 - In Track - remove pinch
 - In Track - add blink dot, include options (size $ color)
 - In Track - add option to remove auto center
+
+## v.1.2.2
+
+Bug fix - update data

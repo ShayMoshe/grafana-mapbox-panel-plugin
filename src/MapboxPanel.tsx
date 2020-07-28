@@ -13,6 +13,7 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
 
   const [map, setMap] = useState(null);
   const [type, setType] = useState(options.type);
+  const [dataInfo, setDataInfo] = useState(data);
   const mapContainer = useRef(null);
   const stylesMap = {
     width: `${width}px`,
@@ -36,14 +37,18 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
         map.resize();
 
         let features = [];
-        let time: any = data.series[0].fields.filter(field => field.name === 'Time' || field.name === 'time');
-        let latitude: any = data.series[0].fields.filter(field => field.name === 'latitude' || field.name === 'lat');
-        let longitude: any = data.series[0].fields.filter(field => field.name === 'longitude' || field.name === 'lng');
-        let name: any = data.series[0].fields.filter(field => field.name === 'name');
-        let value: any = data.series[0].fields.filter(field => field.name === 'value');
+        let time: any = dataInfo.series[0].fields.filter(field => field.name === 'Time' || field.name === 'time');
+        let latitude: any = dataInfo.series[0].fields.filter(
+          field => field.name === 'latitude' || field.name === 'lat'
+        );
+        let longitude: any = dataInfo.series[0].fields.filter(
+          field => field.name === 'longitude' || field.name === 'lng'
+        );
+        let name: any = dataInfo.series[0].fields.filter(field => field.name === 'name');
+        let value: any = dataInfo.series[0].fields.filter(field => field.name === 'value');
         let coordinates: any[] = [];
         let avgCoordinates = [0, 0];
-        for (let index = 0; index < data.series[0].length; index++) {
+        for (let index = 0; index < dataInfo.series[0].length; index++) {
           features.push({
             type: 'Feature',
             properties: {
@@ -62,9 +67,9 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
           avgCoordinates[0] += longitude[0].values.buffer[index];
           avgCoordinates[1] += latitude[0].values.buffer[index];
         }
-        if (data.series[0].length) {
-          avgCoordinates[0] = avgCoordinates[0] / data.series[0].length;
-          avgCoordinates[1] = avgCoordinates[1] / data.series[0].length;
+        if (dataInfo.series[0].length) {
+          avgCoordinates[0] = avgCoordinates[0] / dataInfo.series[0].length;
+          avgCoordinates[1] = avgCoordinates[1] / dataInfo.series[0].length;
         }
 
         if (type === 'cluster') {
@@ -324,7 +329,7 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
           // from GL JS's use in the added source. You can use any request method (library
           // or otherwise) that you want.
 
-          const data = {
+          const dataFeatureCollection = {
             type: 'FeatureCollection',
             features: [
               {
@@ -337,7 +342,7 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
             ],
           };
           // add it to the map
-          map.addSource('trace', { type: 'geojson', data: data });
+          map.addSource('trace', { type: 'geojson', data: dataFeatureCollection });
           map.addLayer({
             id: 'trace',
             type: 'line',
@@ -408,8 +413,9 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
   useEffect(() => {
     console.log('options', options);
     setType(options.type);
+    setDataInfo(data);
     setMap(null);
-  }, [options, width, height]);
+  }, [options, width, height, data]);
 
   return (
     <div
