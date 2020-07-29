@@ -413,9 +413,101 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
   useEffect(() => {
     console.log('options', options);
     setType(options.type);
-    setDataInfo(data);
+    // setDataInfo(data);
     setMap(null);
-  }, [options, width, height, data]);
+  }, [options, width, height]);
+
+  useEffect(() => {
+    setDataInfo(data);
+    let features = [];
+    let time: any = data.series[0].fields.filter(field => field.name === 'Time' || field.name === 'time');
+    let latitude: any = data.series[0].fields.filter(field => field.name === 'latitude' || field.name === 'lat');
+    let longitude: any = data.series[0].fields.filter(field => field.name === 'longitude' || field.name === 'lng');
+    let name: any = data.series[0].fields.filter(field => field.name === 'name');
+    let value: any = data.series[0].fields.filter(field => field.name === 'value');
+    let coordinates: any[] = [];
+    let avgCoordinates = [0, 0];
+    for (let index = 0; index < data.series[0].length; index++) {
+      features.push({
+        type: 'Feature',
+        properties: {
+          id: 'ak16994521',
+          mag: value[0].values.buffer[index],
+          time: time[0].values.buffer[index],
+          felt: null,
+          name: name[0].values.buffer[index],
+        },
+        geometry: {
+          type: 'Point',
+          coordinates: [longitude[0].values.buffer[index], latitude[0].values.buffer[index], 0.0],
+        },
+      });
+      coordinates.push([longitude[0].values.buffer[index], latitude[0].values.buffer[index]]);
+      avgCoordinates[0] += longitude[0].values.buffer[index];
+      avgCoordinates[1] += latitude[0].values.buffer[index];
+    }
+    if (data.series[0].length) {
+      avgCoordinates[0] = avgCoordinates[0] / data.series[0].length;
+      avgCoordinates[1] = avgCoordinates[1] / data.series[0].length;
+    }
+
+    if (map !== null) {
+      if (type === 'cluster') {
+        map.getSource('earthquakes').setData({
+          type: 'FeatureCollection',
+          crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } },
+          features: features,
+        });
+        map.jumpTo({ center: avgCoordinates, zoom: options.zoom });
+
+        // map.panTo(coordinates[i]);
+      } else if (type === 'heatmap') {
+        map.getSource('earthquakes').setData({
+          type: 'FeatureCollection',
+          crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } },
+          features: features,
+        });
+        map.jumpTo({ center: avgCoordinates, zoom: options.zoom });
+      } else if (type === 'track') {
+        const dataFeatureCollection = {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              geometry: {
+                type: 'LineString',
+                coordinates: coordinates,
+              },
+            },
+          ],
+        };
+
+        map.getSource('trace').setData(dataFeatureCollection);
+
+        // setup the viewport
+        if (coordinates.length) {
+          // map.setPitch(20);
+          if (options.autoCenter) {
+            map.jumpTo({ center: coordinates[0], zoom: options.zoom });
+          }
+          // const marker = new mapboxgl.Marker().setLngLat(coordinates[0]).addTo(map);
+          map.getSource('points').setData({
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                  type: 'Point',
+                  coordinates: coordinates[0],
+                },
+              },
+            ],
+          });
+        }
+      }
+    }
+  }, [data]);
 
   return (
     <div

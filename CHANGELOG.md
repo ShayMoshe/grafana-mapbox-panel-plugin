@@ -18,6 +18,6 @@ Initial Release
 - In Track - add blink dot, include options (size $ color)
 - In Track - add option to remove auto center
 
-## v.1.2.2
+## v.1.2.3
 
 Bug fix - update data
