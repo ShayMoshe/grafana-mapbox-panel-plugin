@@ -14,6 +14,8 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
   const [map, setMap] = useState(null);
   const [type, setType] = useState(options.type);
   const [dataInfo, setDataInfo] = useState(data);
+  const [avg, setAvg] = useState([0, 0]);
+  const [cord, setCord] = useState([]);
   const mapContainer = useRef(null);
   const stylesMap = {
     width: `${width}px`,
@@ -37,18 +39,25 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
         map.resize();
 
         let features = [];
-        let time: any = dataInfo.series[0].fields.filter(field => field.name === 'Time' || field.name === 'time');
-        let latitude: any = dataInfo.series[0].fields.filter(
-          field => field.name === 'latitude' || field.name === 'lat'
-        );
-        let longitude: any = dataInfo.series[0].fields.filter(
-          field => field.name === 'longitude' || field.name === 'lng'
-        );
-        let name: any = dataInfo.series[0].fields.filter(field => field.name === 'name');
-        let value: any = dataInfo.series[0].fields.filter(field => field.name === 'value');
+
+        let time: any = [];
+        let latitude: any = [];
+        let longitude: any = [];
+        let name: any = [];
+        let value: any = [];
+
+        if (dataInfo.series[0]) {
+          time = dataInfo.series[0].fields.filter(field => field.name === 'Time' || field.name === 'time');
+          latitude = dataInfo.series[0].fields.filter(field => field.name === 'latitude' || field.name === 'lat');
+          longitude = dataInfo.series[0].fields.filter(field => field.name === 'longitude' || field.name === 'lng');
+          name = dataInfo.series[0].fields.filter(field => field.name === 'name');
+          value = dataInfo.series[0].fields.filter(field => field.name === 'value');
+        }
+
         let coordinates: any[] = [];
         let avgCoordinates = [0, 0];
-        for (let index = 0; index < dataInfo.series[0].length; index++) {
+        let len = dataInfo.series[0] ? dataInfo.series[0].length : 0;
+        for (let index = 0; index < len; index++) {
           features.push({
             type: 'Feature',
             properties: {
@@ -67,10 +76,15 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
           avgCoordinates[0] += longitude[0].values.buffer[index];
           avgCoordinates[1] += latitude[0].values.buffer[index];
         }
-        if (dataInfo.series[0].length) {
+        if (dataInfo.series[0] && dataInfo.series[0].length) {
           avgCoordinates[0] = avgCoordinates[0] / dataInfo.series[0].length;
           avgCoordinates[1] = avgCoordinates[1] / dataInfo.series[0].length;
+        } else {
+          coordinates = [[0, 0]];
         }
+
+        setAvg(avgCoordinates);
+        setCord(coordinates);
 
         if (type === 'cluster') {
           map.addSource('earthquakes', {
@@ -355,7 +369,7 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
           });
 
           // setup the viewport
-          if (coordinates.length) {
+          if (coordinates) {
             // map.setPitch(20);
             if (options.autoCenter) {
               map.jumpTo({ center: coordinates[0], zoom: options.zoom });
@@ -420,45 +434,56 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
   useEffect(() => {
     setDataInfo(data);
     let features = [];
-    let time: any = data.series[0].fields.filter(field => field.name === 'Time' || field.name === 'time');
-    let latitude: any = data.series[0].fields.filter(field => field.name === 'latitude' || field.name === 'lat');
-    let longitude: any = data.series[0].fields.filter(field => field.name === 'longitude' || field.name === 'lng');
-    let name: any = data.series[0].fields.filter(field => field.name === 'name');
-    let value: any = data.series[0].fields.filter(field => field.name === 'value');
-    let coordinates: any[] = [];
-    let avgCoordinates = [0, 0];
-    for (let index = 0; index < data.series[0].length; index++) {
-      features.push({
-        type: 'Feature',
-        properties: {
-          id: 'ak16994521',
-          mag: value[0].values.buffer[index],
-          time: time[0].values.buffer[index],
-          felt: null,
-          name: name[0].values.buffer[index],
-        },
-        geometry: {
-          type: 'Point',
-          coordinates: [longitude[0].values.buffer[index], latitude[0].values.buffer[index], 0.0],
-        },
-      });
-      coordinates.push([longitude[0].values.buffer[index], latitude[0].values.buffer[index]]);
-      avgCoordinates[0] += longitude[0].values.buffer[index];
-      avgCoordinates[1] += latitude[0].values.buffer[index];
-    }
-    if (data.series[0].length) {
-      avgCoordinates[0] = avgCoordinates[0] / data.series[0].length;
-      avgCoordinates[1] = avgCoordinates[1] / data.series[0].length;
+    let time: any = [];
+    let latitude: any = [];
+    let longitude: any = [];
+    let name: any = [];
+    let value: any = [];
+    if (data.series[0]) {
+      time = data.series[0].fields.filter(field => field.name === 'Time' || field.name === 'time');
+      latitude = data.series[0].fields.filter(field => field.name === 'latitude' || field.name === 'lat');
+      longitude = data.series[0].fields.filter(field => field.name === 'longitude' || field.name === 'lng');
+      name = data.series[0].fields.filter(field => field.name === 'name');
+      value = data.series[0].fields.filter(field => field.name === 'value');
+
+      let coordinates: any[] = [];
+      let avgCoordinates = [0, 0];
+      for (let index = 0; index < data.series[0].length; index++) {
+        features.push({
+          type: 'Feature',
+          properties: {
+            id: 'ak16994521',
+            mag: value[0].values.buffer[index],
+            time: time[0].values.buffer[index],
+            felt: null,
+            name: name[0].values.buffer[index],
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [longitude[0].values.buffer[index], latitude[0].values.buffer[index], 0.0],
+          },
+        });
+        coordinates.push([longitude[0].values.buffer[index], latitude[0].values.buffer[index]]);
+        avgCoordinates[0] += longitude[0].values.buffer[index];
+        avgCoordinates[1] += latitude[0].values.buffer[index];
+      }
+      if (data.series[0].length) {
+        avgCoordinates[0] = avgCoordinates[0] / data.series[0].length;
+        avgCoordinates[1] = avgCoordinates[1] / data.series[0].length;
+      }
     }
 
-    if (map !== null) {
+    if (map !== null && data.series[0]) {
       if (type === 'cluster') {
         map.getSource('earthquakes').setData({
           type: 'FeatureCollection',
           crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } },
           features: features,
         });
-        map.jumpTo({ center: avgCoordinates, zoom: options.zoom });
+        if (avgCoordinates[0] !== avg[0] && avgCoordinates[1] !== avg[1]) {
+          map.jumpTo({ center: avgCoordinates });
+          setAvg(avgCoordinates);
+        }
 
         // map.panTo(coordinates[i]);
       } else if (type === 'heatmap') {
@@ -467,7 +492,10 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
           crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } },
           features: features,
         });
-        map.jumpTo({ center: avgCoordinates, zoom: options.zoom });
+        if (avgCoordinates[0] !== avg[0] && avgCoordinates[1] !== avg[1]) {
+          map.jumpTo({ center: avgCoordinates });
+          setAvg(avgCoordinates);
+        }
       } else if (type === 'track') {
         const dataFeatureCollection = {
           type: 'FeatureCollection',
@@ -485,10 +513,12 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
         map.getSource('trace').setData(dataFeatureCollection);
 
         // setup the viewport
-        if (coordinates.length) {
+        if (coordinates) {
           // map.setPitch(20);
-          if (options.autoCenter) {
-            map.jumpTo({ center: coordinates[0], zoom: options.zoom });
+
+          if (coordinates[0] && cord[0] && coordinates[0][0] !== cord[0][0] && coordinates[0][1] !== cord[0][1]) {
+            map.jumpTo({ center: coordinates[0] });
+            setCord(coordinates);
           }
           // const marker = new mapboxgl.Marker().setLngLat(coordinates[0]).addTo(map);
           map.getSource('points').setData({
@@ -505,6 +535,34 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
             ],
           });
         }
+      }
+    } else if (map !== null) {
+      if (type === 'cluster') {
+        map.getSource('earthquakes').setData({
+          type: 'FeatureCollection',
+          crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } },
+          features: [],
+        });
+      } else if (type === 'heatmap') {
+        map.getSource('earthquakes').setData({
+          type: 'FeatureCollection',
+          crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } },
+          features: [],
+        });
+      } else if (type === 'track') {
+        map.getSource('points').setData({
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'Point',
+                coordinates: [],
+              },
+            },
+          ],
+        });
       }
     }
   }, [data]);

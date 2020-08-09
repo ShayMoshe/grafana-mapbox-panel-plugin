@@ -21,3 +21,7 @@ Initial Release
 ## v.1.2.3
 
 Bug fix - update data
+
+## v.1.2.4
+
+Bug fix - auto center
