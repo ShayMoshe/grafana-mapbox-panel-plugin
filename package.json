@@ -7,7 +7,7 @@
     "test": "grafana-toolkit plugin:test",
     "dev": "grafana-toolkit plugin:dev",
     "watch": "grafana-toolkit plugin:dev --watch",
-    "sign": "npx @grafana/toolkit plugin:sign"
+    "sign": "npx @grafana/toolkit plugin:sign --signatureType=community"
   },
   "repository": "github:grafana/simple-react-panel",
   "author": "Shay Moshe",
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@grafana/data": "7.0.1",
-    "@grafana/toolkit": "7.0.1",
+    "@grafana/toolkit": "^8.0.3",
     "@grafana/ui": "7.0.1",
     "emotion": "10.0.27"
   },

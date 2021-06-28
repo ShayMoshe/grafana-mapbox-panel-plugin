@@ -26,9 +26,13 @@
         "url": "https://github.com/grafana/simple-react-panel/blob/master/LICENSE"
       }
     ],
-    "screenshots": [],
-    "version": "%VERSION%",
-    "updated": "%TODAY%"
+    "screenshots": [
+      {"name": "Cluster", "path": "img/cluster.png"},
+      {"name": "Track", "path": "img/track.png"},
+      {"name": "Heatmap", "path": "img/heatmap.png"}
+    ],
+    "version": "1.2.5",
+    "updated": "2021-06-28"
   },
   "dependencies": {
     "grafanaVersion": "6.3.x",
