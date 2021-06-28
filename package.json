@@ -1,6 +1,6 @@
 {
   "name": "mapbox-grafana-plugin",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
@@ -23,7 +23,7 @@
     "emotion": "10.0.27"
   },
   "engines": {
-    "node": ">=12 <13"
+    "node": ">=12 <14.16"
   },
   "dependencies": {
     "@types/mapbox-gl": "^1.11.0",

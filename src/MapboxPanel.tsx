@@ -17,7 +17,7 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
   const [avg, setAvg] = useState([0, 0]);
   const [cord, setCord] = useState([]);
   const mapContainer = useRef(null);
-  const stylesMap = {
+  const stylesMap: object = {
     width: `${width}px`,
     height: `${height}px`,
     position: 'absolute',
@@ -439,6 +439,8 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
     let longitude: any = [];
     let name: any = [];
     let value: any = [];
+    let coordinates: any[] = [];
+    let avgCoordinates = [0, 0];
     if (data.series[0]) {
       time = data.series[0].fields.filter(field => field.name === 'Time' || field.name === 'time');
       latitude = data.series[0].fields.filter(field => field.name === 'latitude' || field.name === 'lat');
@@ -446,8 +448,6 @@ export const MapboxPanel: React.FC<Props> = ({ options, data, width, height }) =
       name = data.series[0].fields.filter(field => field.name === 'name');
       value = data.series[0].fields.filter(field => field.name === 'value');
 
-      let coordinates: any[] = [];
-      let avgCoordinates = [0, 0];
       for (let index = 0; index < data.series[0].length; index++) {
         features.push({
           type: 'Feature',
