@@ -1,7 +1,7 @@
 {
   "type": "panel",
   "name": "mapbox",
-  "id": "mapbox-panel",
+  "id": "shaymoshe-mapbox-panel",
   "info": {
     "description": "mapbox panel",
     "author": {
