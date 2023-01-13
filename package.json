@@ -19,7 +19,7 @@
   "devDependencies": {
     "@grafana/data": "7.0.1",
     "@grafana/toolkit": "^8.0.3",
-    "@grafana/ui": "7.0.1",
+    "@grafana/ui": "7.5.17",
     "emotion": "10.0.27"
   },
   "engines": {
