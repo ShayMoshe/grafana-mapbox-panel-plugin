@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@grafana/data": "7.0.1",
-    "@grafana/toolkit": "^8.0.3",
+    "@grafana/toolkit": "^8.5.20",
     "@grafana/ui": "7.0.1",
     "emotion": "10.0.27"
   },
